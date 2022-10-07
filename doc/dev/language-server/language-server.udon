@@ -1,0 +1,22 @@
+;>
+
+# Basics
+
+- `%language-server` works by loading an open `hoon` file into the app state and
+  parsing it into an AST.
+- When given a cursor position it attempts to mark the corresponding position in
+  the AST.
+- When a request for type information comes in it will traverse the AST until it
+  reaches a marked location (the `%magic-spoon` or `%magic-fork`) and extract
+  the type information.
+- Requests are sent and received via the `hoon-language-server` binary.
+
+# Known Issues
+
+- Fails to resolve type information when inside the following rune forms:
+  - TODO 
+- Poor performance on large hoon files - `/sys` source files are disabled for
+  this reason. Also problems with parsing heavily recursive hoon like
+  `complete.hoon`. Enabling lsp on that file will consistently bail meme a ship.
+- Problems parsing certain `%tsgr` expressions. Seems to stem from the `change`
+  and `replace` arms in `complete.hoon`.
