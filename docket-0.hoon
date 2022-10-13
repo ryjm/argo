@@ -3,7 +3,7 @@
     color+0xff.cf00
     site+/~/scry/docs/[~.usr.html]
     base+'argo'
-    version+[0 0 0]
-    website+'tlon.io'
+    version+[0 1 0]
+    website+'https://github.com/ryjm/argo'
     license+'MIT'
 ==
