@@ -216,7 +216,6 @@
   ++  text-document--publish-diagnostics
     |=  pub=text-document--publish-diagnostics:notification:lsp
     ^-  json
-    ~&  pub+pub
     %:  pairs
       uri+s+uri.pub
       diagnostics+a+(turn diagnostics.pub diagnostic)
