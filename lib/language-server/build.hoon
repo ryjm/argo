@@ -56,6 +56,6 @@
     ;~(pose (plus fas) dot)
   %+  cook
     crip
-  (star ;~(pose col hep alf))
+  (star ;~(pose col hep aln))
 ::
 --

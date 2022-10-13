@@ -222,17 +222,13 @@
 ++  handle-did-save
   |=  [uri=@t version=(unit @)]
   ^-  (quip card _state)
+  ~?  >  debug  handle-did-save+uri
+  =/  =desk  (find-desk uri)
+  ~?  >  debug  handle-did-save+desk
   :_  state
-  :_  (give-rpc-notification (get-diagnostics uri))
-  :*
-    %pass
-    /commit
-    %agent
-    [our.bow %hood]
-    %poke
-    %kiln-commit
-    !>([q.byk.bow |])
-  ==
+  =-  %+  weld  -  (give-rpc-notification (get-diagnostics uri))
+  =-  (hite desk (uri-to-path:build uri) -)
+   %-  crip  (zing (join "\0a" `wall`(~(got by bufs) uri)))
 ::
 ++  handle-did-change
   |=  [document=versioned-doc-id:lsp-sur changes=(list change:lsp-sur)]
@@ -294,6 +290,25 @@
   =/  des=^desk  ?^  desk  u.desk  %base
   [%pass /ford/[uri] %arvo %c %warp our.bow des `rave]
 ::
+::  for finding a desk when saving a file
+::  ignores files in %base
+::  if there are multiple desks, picks the first one 
+::  TODO allow user to specify which desk to use
+++  find-desk
+  |=  uri=@t
+  =/  bek  byk.bow
+  =/  =path
+    (uri-to-path:build uri)
+  =/  desks=(list desk)  ~(tap in .^((set desk) %cd (en-beam bek /)))
+  =|  dek=desk
+  |-
+  ?~  desks  %$
+  =.  dek  ?:  =(%kids i.desks)  %base  i.desks
+  ::  to avoid saving to %base
+  ?:  =(dek %base)  $(desks t.desks)
+  =/  exists=?  .^(? %cu (en-beam bek(q dek) path))
+  ?.  exists  $(desks t.desks)
+  dek
 ++  handle-did-open
   |=  item=text-document-item:lsp-sur
   ^-  (quip card _state)
@@ -374,10 +389,12 @@
   |=  cop=text-document--hover-complete:request:lsp-sur
   ^-  (quip card _state)
   =/  hov  hov.cop
+  =|  item=text-document-item:lsp-sur
+  ?.  (~(has by bufs) uri.hov)  (handle-did-open item(uri uri.hov))
   :_  state
   %^  give-rpc-response  %text-document--hover  id.hov
   =/  buf=wall
-    (~(got by bufs) uri.hov)
+    ~|  "{<uri.hov>} not found"  (~(got by bufs) uri.hov)
   =/  txt
     (zing (join "\0a" buf))
   =/  pos  (get-pos buf row.hov col.hov)
@@ -467,4 +484,25 @@
   |=  [=path now=@da time=@dr]
   ^-  card
   [%pass [%timer path] %arvo %b %wait (add now time)]
+::    +cite
+::
+::  write file to desk.
+++  cite 
+  |=  [=desk =path data=cage]
+  =*  bek  byk.bow
+  ~&  >>  "saving to {<desk>} at {<path>}"
+  ~|  "failed write to {<desk>}"
+  =-  [%pass /lsp/write %arvo %c %info -]~
+  =/  fath=^path  (weld /(scot %p our.bow)/[desk]/(scot %da now.bow) path)
+  ~&  >>  "saved to {<desk>} at {<path>}"
+  (foal:space:userlib fath data)
+::    +hite
+::
+::  write text as hoon to desk.
+++  hite
+      |=  [=desk =path txt=@t]
+      =/  =mark  (rear path)
+      =/  =type  [%atom %t ~]
+      =-  (cite desk path -)
+      [mark [type ?:(=(%hoon mark) txt (need (de-json:html txt)))]]
 --
