@@ -417,22 +417,21 @@
   =;  result
     ~?  >  debug  "output: {<result>}"  result
   ::  =-  ~?  >  debug  "exact: {<(crip -)>}"  (crip -)
-  ~&  >>  docs
   ?^  docs  u.docs
   %-  crip
   =;  exact=tape
-    ~&  >>  exact
     "```hoon\0a {exact} \0a```"
   =/  types  (=<(exact-list-tape auto) sut pos txt)
   ~?  >  debug  "types: {<types>}"
-  ?:  ?=(%| -.types)  ~|(missing-type !!)
-  ?~  p.types  ~|(missing-type !!)
+  ?:  ?=(%| -.types)  (trip (need missing-type))
+  ?~  p.types  (trip (need missing-type))
   %-  zing
   %+  join  "\0a"
   =/  [=type rep=(unit tape)]  detail.u.p.types
   ~?  >  debug  "detail: {<[type rep]>}"
   ::  ?^  rep  ~[~(ram re u.rep)]
   ?^  rep  ~[u.rep]
+  ?:  =(type -:!>(**))  ~[(trip (need missing-type))]
   (~(win re ~(duck easy-print type)) 0 140)
 ::
 ++  sync-buf
