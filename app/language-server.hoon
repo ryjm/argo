@@ -1,5 +1,5 @@
-/-  lsp-sur=language-server
-/+  *server, dbug,
+/-  lsp-sur=language-server, *sole
+/+  *server, dbug, dprint,
     auto=language-server-complete,
     lsp-parser=language-server-parser,
     easy-print=language-server-easy-print,
@@ -402,19 +402,14 @@
   ::  TODO doccords support - the following works with the doccords work but
   ::  requires changes to hoon.hoon
   ::
-  ::=/ hon (tape-to-hoon:auto sut pos txt)
-  =/  docs=(unit tape)  ~
-    ::  %+  bind  (find-type-mule:auto sut hon)
-    ::  |=  [id=term typ=type]
-    ::  =/  found=(unit item:dprint)
-    ::    ?-  -.res
-    ::      %&  p.res
-    ::      %|  ((slog (flop (scag 10 p.res))) ~)
-    ::    ==
-    ::  ?~  found  ~
-    ::  =/  prints=tang  (print-item:dprint u.found)
-    ::  %+  roll  prints
-    ::  |=  [t=tank all=tape]  :(weld all "\0a" ~(ram re t))
+  =/  hon  (tape-to-hoon:auto sut pos txt)
+  =/  docs=(unit tape)
+    %+  bind  (find-type-mule:auto sut hon)
+    |=  [id=term typ=type]
+    =/  found=(unit item:dprint)
+      (find-item-in-type:dprint ~[id] typ)
+    ?~  found  ~
+    (to-tape (print-item:dprint u.found))
   =/  types  (=<(exact-list-tape auto) sut pos txt)
   =/  lor=tape  ?~  docs  ""  u.docs
   ?:  ?=(%| -.types)  missing-type
@@ -461,6 +456,29 @@
     [~ wall]
   [[char i.wall] t.wall]
 ::
+++  wush
+  |=  [wid=@u tan=tang]
+  ^-  tape
+  =,  format
+  (of-wall (turn (flop tan) |=(a=tank (of-wall (wash 0^wid a)))))
+++  to-tape
+  |=  sols=(list sole-effect)
+  ^-  tape
+  %-  zing
+  =-  (turn sols -)
+  |=  sef=sole-effect
+    ^-  tape
+    ?+    -.sef
+              ~|(unsupported-effect+-.sef !!)
+        %mor  (zing (turn p.sef |=(a=sole-effect ^$(sef a))))
+        %txt  (tape p.sef)
+        %tan  (tape (wush 160 p.sef))
+        %klr  ""
+    ::
+        ?(%bel %clr %nex %bye)
+      <+.sef>
+    ==
+
 ++  get-pos
   |=  [buf=wall position]
   ^-  @ud
