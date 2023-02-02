@@ -399,27 +399,38 @@
     (zing (join "\0a" buf))
   =/  pos  (get-pos buf row.hov col.hov)
   =/  sut  (~(gut by preludes) uri.hov -:!>(..zuse))
-  ::  TODO doccords support - the following works with the doccords work but
-  ::  requires changes to hoon.hoon
-  ::
   =/  hon  (tape-to-hoon:auto sut pos txt)
-  =/  docs=(unit tape)
-    %+  bind  (find-type-mule:auto sut hon)
+  =/  docs=(unit @t)
+    %+  biff  (find-type-mule:auto sut hon)
     |=  [id=term typ=type]
+    ~?  >  debug  "looking for type: {<id>}"
     =/  found=(unit item:dprint)
       (find-item-in-type:dprint ~[id] typ)
+    ~?  >  debug  "item for {<id>}: {<found>}"
     ?~  found  ~
-    (to-tape (print-item:dprint u.found))
-  =/  types  (=<(exact-list-tape auto) sut pos txt)
-  =/  lor=tape  ?~  docs  ""  u.docs
-  ?:  ?=(%| -.types)  missing-type
-  ?~  p.types  missing-type
+    =;  printed=(unit @t)
+      ?.  ?=(%face -.u.found)  printed
+      ?~  docs.u.found  ~
+      printed
+    `(crip (to-tape (print-item:dprint u.found)))
   :-  ~
-  =-  (crip :(weld lor "\0a" "```hoon\0a" tape "\0a```"))
-  ^-  =tape
+  =;  result
+    ~?  >  debug  "output: {<result>}"  result
+  ::  =-  ~?  >  debug  "exact: {<(crip -)>}"  (crip -)
+  ~&  >>  docs
+  ?^  docs  u.docs
+  %-  crip
+  =;  exact=tape
+    ~&  >>  exact
+    "```hoon\0a {exact} \0a```"
+  =/  types  (=<(exact-list-tape auto) sut pos txt)
+  ~?  >  debug  "types: {<types>}"
+  ?:  ?=(%| -.types)  ~|(missing-type !!)
+  ?~  p.types  ~|(missing-type !!)
   %-  zing
   %+  join  "\0a"
   =/  [=type rep=(unit tape)]  detail.u.p.types
+  ~?  >  debug  "detail: {<[type rep]>}"
   ::  ?^  rep  ~[~(ram re u.rep)]
   ?^  rep  ~[u.rep]
   (~(win re ~(duck easy-print type)) 0 140)
@@ -461,6 +472,7 @@
   ^-  tape
   =,  format
   (of-wall (turn (flop tan) |=(a=tank (of-wall (wash 0^wid a)))))
+::
 ++  to-tape
   |=  sols=(list sole-effect)
   ^-  tape
@@ -471,7 +483,9 @@
     ?+    -.sef
               ~|(unsupported-effect+-.sef !!)
         %mor  (zing (turn p.sef |=(a=sole-effect ^$(sef a))))
-        %txt  (tape p.sef)
+          %txt
+        :(weld "\0a" "```hoon\0a" (tape p.sef) "\0a```\0a")
+        ::
         %tan  (tape (wush 160 p.sef))
         %klr  ""
     ::
