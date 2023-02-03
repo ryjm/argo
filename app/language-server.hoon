@@ -33,6 +33,14 @@
 +$  position
   [row=@ud col=@ud]
 ::
++$  state-one
+  $:  %1
+      bufs=(map uri=@t buf=wall)
+      builds=(map uri=@t =vase)
+      ford-diagnostics=(map uri=@t (list diagnostic:lsp-sur))
+      preludes=(map uri=@t type)
+      pending=(list card)
+  ==
 +$  state-zero
   $:  %0
       bufs=(map uri=@t buf=wall)
@@ -44,9 +52,20 @@
 +$  versioned-state
   $%
     state-zero
+    state-one
   ==
+++  jack
+  |=  v=versioned-state
+  =*  old  +.v
+  ?-  -.v
+    %0  *state-one
+    ::
+    %1  v(pending ~)
+  ==
+::
++$  adapted-state  $&(versioned-state jack)
 --
-=|  state-zero
+=|  adapted-state
 =*  state  -
 %-  agent:dbug
 %+  verb  |
@@ -71,10 +90,10 @@
   ++  on-save   !>(state)
   ++  on-load
     ^+  on-load:*agent:gall
-    |=  old-state=vase
+    |=  =vase
     ^-  (quip card _this)
     ~&  >  %lsp-upgrade
-    [~ this(state !<(state-zero old-state))]
+    [~ this(state ;;(adapted-state !<(versioned-state vase)))]
   ::
   ++  on-poke
     ^+  on-poke:*agent:gall
@@ -200,7 +219,7 @@
 ++  handle-exit
   ^-  (quip card _state)
   ~&  >  %lsp-shutdown
-  :_  *state-zero
+  :_  *state-one
   %+  turn
     ~(tap in ~(key by builds))
   |=  uri=@t
