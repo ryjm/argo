@@ -508,12 +508,18 @@
   %-  zing  %+  turn  a
   |=  a=_?>(?=(^ a) i.a)
   ?@  a  (trip a)
-  ~!  p.a
-  ~!  q.a
   ?~  p.p.a  ^$(a q.a)
   ?+  u.p.p.a  ^$(a q.a)
     %bl  "{^$(a q.a)}\0a"
-    %br  "`{^$(a q.a)}`:\0a"
+      %br
+    ?~  q.q.p.a  "{^$(a q.a)}\0a"
+    ?+    u.q.q.p.a  "{^$(a q.a)}\0a"
+        %g
+      =/  name=tape  ^$(a q.a)
+      ?:  =(0 (lent name))  ""  "### {name}\0a"
+        %b
+      "---\0a __{^$(a q.a)}__ "
+    ==
     %un  "_{^$(a q.a)}_"
   ==
 ++  to-tape
@@ -533,7 +539,7 @@
         %klr  (tape (murge p.sef))  ::
     ::
         ?(%bel %clr %nex %bye)
-      <+.sef>
+      (weld <-.sef> <+.sef>)
     ==
 
 ++  get-pos
