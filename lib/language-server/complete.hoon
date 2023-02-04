@@ -1,4 +1,4 @@
-/+  language-server-parser
+/+  language-server-parser, pprint
 ::  Autocomplete for hoon.
 ::
 =/  debug  |
@@ -164,9 +164,9 @@
       |=([id=term typ=type] [id [typ ~]])
     %|
      =,  format
-     =-  `[*term [*type `"{(of-wall -)}"]]
+     =-  `[%error [*type `"{(of-wall -)}"]]
      %-  zing  ^-  (list wall)
-    (turn (flop p.res) |=(a=tank (wash 0^160 a)))
+    (turn (scag 10 p.res) |=(a=tank (wash 0^160 a)))
 
   ==
 ::
@@ -267,7 +267,27 @@
   ::
   ++  change
     |=  [a=hoon b=hoon]
-    (replace loop(gen a) |.(loop(gen b, sut (~(play ut sut) a))))
+    ::  ?^  x=(find [%magic-spoon ~] p.gen)
+    ::    $(p.gen (slag u.x p.gen))
+    ::  |-  ^-  (unit [term type])
+    ::  =*  inner-loop  $
+    ::  ?~  b
+    ::    ~
+    ::  %+  replace
+    ::    loop(gen a)
+    ::  |.  inner-loop(q.gen t.q.gen)
+    ::  ~?  >  debug  change-a+(render-hoon:pprint a)
+    ::  ~?  >  debug  change-b+(render-hoon:pprint b)
+    =/  played  (mule |.((~(play ut sut) a)))
+    =;  yalp
+      (replace loop(gen a) |.(loop(gen b, sut yalp)))
+    ?-  -.played
+      %&  p.played
+      %|
+        =/  err  (flop (scag 10 p.played))
+        ?:  debug  ((slog err) sut)
+        sut
+    ==
   ::
   ++  grow
     |=  m=(map term tome)
@@ -294,6 +314,8 @@
 ++  find-type-in-spec
   |=  [sut=type pec=spec]
   ^-  (unit [term type])
+  ~?  >  debug  find-type-in-spec+(render-type:pprint sut)
+  ~?  >  debug  find-type-in-spec+pec
   ~
 ::
 ::

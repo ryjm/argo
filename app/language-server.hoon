@@ -93,7 +93,12 @@
     |=  =vase
     ^-  (quip card _this)
     ~&  >  %lsp-upgrade
-    [~ this(state ;;(adapted-state !<(versioned-state vase)))]
+    =+  !<(old=versioned-state vase)
+    =-  [~ this(state -)]
+    ?-    -.old
+        %0  ;;(adapted-state !<(versioned-state vase))
+        %1  old
+    ==
   ::
   ++  on-poke
     ^+  on-poke:*agent:gall
@@ -242,11 +247,13 @@
   |=  [uri=@t version=(unit @)]
   ^-  (quip card _state)
   ~?  >  debug  handle-did-save+uri
+  =/  =path  (uri-to-path:build uri)
   =/  =desk  (find-desk uri)
   ~?  >  debug  handle-did-save+desk
   :_  state
+  %+  weld  [(build-file & uri path `desk) ~]
   =-  %+  weld  -  (give-rpc-notification (get-diagnostics uri))
-  =-  (hite desk (uri-to-path:build uri) -)
+  =-  (hite desk path -)
    %-  crip  (zing (join "\0a" `wall`(~(got by bufs) uri)))
 ::
 ++  handle-did-change
@@ -264,6 +271,7 @@
   ?>  ?=([%writ *] gift)
   =/  uri=@t
     (snag 1 path)
+  ~?  >  debug  handle-did-build+uri
   =/  loc=^path  (uri-to-path:build uri)
   =;  [res=(quip card _state) dek=desk]
     [(snoc -.res (build-file | uri loc `dek)) +.res]
@@ -283,7 +291,9 @@
   ?.  exists  $(desks t.desks)
   =+  .^(=open:clay %cs /(scot %p our.bow)/[dek]/(scot %da now.bow)/open/foo)
   =/  =type  -:(open loc)
-
+  ~&  >>  "built {<path>} at {<dek>}"
+  =/  file=wall
+    %-  to-wall  (trip .^(@t %cx (en-beam bek(q dek) loc)))
   =.  preludes
     (~(put by preludes) uri type)
   :_  dek
@@ -311,7 +321,7 @@
 ::
 ::  for finding a desk when saving a file
 ::  ignores files in %base
-::  if there are multiple desks, picks the first one 
+::  if there are multiple desks, picks the first one
 ::  TODO allow user to specify which desk to use
 ++  find-desk
   |=  uri=@t
@@ -423,15 +433,18 @@
     %+  biff  (find-type-mule:auto sut hon)
     |=  [id=term typ=type]
     ~?  >  debug  "looking for type: {<id>}"
-    =/  found=(unit item:dprint)
-      (find-item-in-type:dprint ~[id] typ)
-    ~?  >  debug  "item for {<id>}: {<found>}"
-    ?~  found  ~
-    =;  printed=(unit @t)
-      ?.  ?=(%face -.u.found)  printed
-      ?~  docs.u.found  ~
-      printed
-    `(crip (to-tape (print-item:dprint u.found)))
+    =+  to-display=(mule |.((find-item-in-type:dprint ~[id] typ)))
+    :-  ~
+    %-  crip
+    %-  to-tape
+    ?:  ?=(%| -.to-display)
+      [%tan [%leaf "Could not find help A"] p.to-display]~
+    ?~  p.to-display
+      [%tan [%leaf "Could not find help B"]~]~
+    =/  item  (mule |.((print-item:dprint u.p.to-display)))
+    ?:  ?=(%| -.item)
+      [%tan [%leaf "Could not find help C"] p.item]~
+    p.item
   :-  ~
   =;  result
     ~?  >  debug  "output: {<result>}"  result
@@ -448,7 +461,6 @@
   %+  join  "\0a"
   =/  [=type rep=(unit tape)]  detail.u.p.types
   ~?  >  debug  "detail: {<[type rep]>}"
-  ::  ?^  rep  ~[~(ram re u.rep)]
   ?^  rep  ~[u.rep]
   ?:  =(type -:!>(**))  ~[(trip (need missing-type))]
   (~(win re ~(duck easy-print type)) 0 140)
@@ -491,6 +503,19 @@
   =,  format
   (of-wall (turn (flop tan) |=(a=tank (of-wall (wash 0^wid a)))))
 ::
+++  murge                                              
+  |=  a=styx  ^-  tape
+  %-  zing  %+  turn  a
+  |=  a=_?>(?=(^ a) i.a)
+  ?@  a  (trip a)
+  ~!  p.a
+  ~!  q.a
+  ?~  p.p.a  ^$(a q.a)
+  ?+  u.p.p.a  ^$(a q.a)
+    %bl  "{^$(a q.a)}\0a"
+    %br  "`{^$(a q.a)}`:\0a"
+    %un  "_{^$(a q.a)}_"
+  ==
 ++  to-tape
   |=  sols=(list sole-effect)
   ^-  tape
@@ -505,7 +530,7 @@
         :(weld "\0a" "```hoon\0a" (tape p.sef) "\0a```\0a")
         ::
         %tan  (tape (wush 160 p.sef))
-        %klr  ""
+        %klr  (tape (murge p.sef))  ::
     ::
         ?(%bel %clr %nex %bye)
       <+.sef>
@@ -537,15 +562,15 @@
 ::    +cite
 ::
 ::  write file to desk.
-++  cite 
+++  cite
   |=  [=desk =path data=cage]
   =*  bek  byk.bow
   ~&  >>  "saving to {<desk>} at {<path>}"
-  ~|  "failed write to {<desk>}"
+  ~|  "failed write to {<desk>} at {<path>}"
   =-  [%pass /lsp/write %arvo %c %info -]~
   =/  fath=^path  (weld /(scot %p our.bow)/[desk]/(scot %da now.bow) path)
-  ~&  >>  "saved to {<desk>} at {<path>}"
   (foal:space:userlib fath data)
+::
 ::    +hite
 ::
 ::  write text as hoon to desk.

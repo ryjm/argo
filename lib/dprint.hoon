@@ -94,7 +94,7 @@
         [%face *]  find-face
         [%fork *]  find-fork
         [%hint *]  find-hint
-        [%hold *]  find-item:this(sut (~(play ut p.sut) q.sut))
+        [%hold *]  find-item:this(sut ~(repo ut sut))
     ==
   ::
   ++  find-cell
@@ -318,7 +318,7 @@
         [%face *]  return-face
         [%fork *]  return-fork
         [%hint *]  return-hint
-        [%hold *]  return-item:this(sut (~(play ut p.sut) q.sut))
+        [%hold *]  return-item:this(sut ~(repo ut sut))
     ==
   ::
   ++  return-hint-core
@@ -629,7 +629,7 @@
   ?.  (gte (lent tan) 3)
     (turn tan |=(a=tape [%txt a]))
   %+  weld
-    (turn (scag 3 tan) |=(a=tape [%txt a]))
+    (turn tan |=(a=tape [%txt a]))
   (styled [[`%br ~ `%g] '   ...']~)
 ::
 ::  +print-arm: renders documentation for a single arm in a core
