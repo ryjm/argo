@@ -43,6 +43,7 @@
         $:  %face
             name=tape                                   ::  name of face
             docs=what                                   ::
+            sut=type                                    ::  [%face *]
             children=(unit item)                        ::  face referent
         ==
         ::    inspecting a single chapter on a core
@@ -77,6 +78,7 @@
 ::  +hunt: door used for refining the type while searching for doccords
 ::
 ++  hunt
+   =|  alias=$~(| ?)
   |_  [topics=(lest term) sut=type]
   +*  this  .
   ::
@@ -94,7 +96,7 @@
         [%face *]  find-face
         [%fork *]  find-fork
         [%hint *]  find-hint
-        [%hold *]  find-item:this(sut ~(repo ut sut))
+        [%hold *]  find-item:this(sut (~(play ut p.sut) q.sut))
     ==
   ::
   ++  find-cell
@@ -126,15 +128,32 @@
     ~?  >>  debug  %find-face
     ^-  (unit item)
     ?>  ?=([%face *] sut)
-    ?.  ?=(term p.sut)
-      ::TODO: handle $tune case
-      find-item:this(sut q.sut)
+    ?^   p.sut
+      find-aliases
     ?.  =(i.topics p.sut)
       ~
     ?~  t.topics
       return-face
     find-item:this(sut q.sut, topics t.topics)
   ::
+  ++  find-aliases
+    ~?  >>  debug  %find-aliases
+    ^-  (unit item)
+    ?>  ?=([%face *] sut)
+    ?>  ?=(^ p.sut)
+    =/  aliases=(list (pair term type))
+      %+  turn  ~(tap by p.p.sut)
+      |=  [name=term hun=(unit hoon)]
+      =/  ale=vase  (~(mint ut sut) %noun (need hun))
+      =/  dur=type  -:(slop ale !>(..zuse))
+      [name dur]
+    |-
+    ?~  aliases  ~
+    ?~  t.aliases
+      =.  alias  &
+      find-item:this(sut q.i.aliases)
+    $(aliases t.aliases)
+
   ++  find-fork
     ~?  >>  debug  %find-fork
     ^-  (unit item)
@@ -254,10 +273,11 @@
     ~?  >>>  debug  %return-face
     ^-  (unit item)
     ?>  ?=([%face *] sut)
-    ::  TODO: handle tune case
-    ?>  ?=(term p.sut)
+    ?<  ?=(^ p.sut)
+    ?~  alias
+      `[%face (trip i.topics) *what q.sut `*item]
     =*  compiled-against  return-item:this(sut q.sut)
-    `[%face (trip p.sut) *what compiled-against]
+    `[%face (trip p.sut) *what q.sut compiled-against]
   ::
   ++  return-fork
     ~?  >>>  debug  %return-fork
@@ -318,7 +338,7 @@
         [%face *]  return-face
         [%fork *]  return-fork
         [%hint *]  return-hint
-        [%hold *]  return-item:this(sut ~(repo ut sut))
+        [%hold *]  return-item:this(sut (~(play ut p.sut) q.sut))
     ==
   ::
   ++  return-hint-core
@@ -669,6 +689,7 @@
   ;:  weld
     (print-header (weld "." name.item) docs.item)
     [%txt ""]~
+    (print-signature ~(duck easy-print sut.item))
   ::
     ?~  children.item
       ~

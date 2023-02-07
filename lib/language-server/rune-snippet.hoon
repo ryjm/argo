@@ -525,7 +525,6 @@
 ^-  (list completion-item:lsp-sur)
 =?  rune  =(' ' (snag 0 rune))
   (slag 1 rune)
-~&  rune
 %+  turn  (search-prefix:auto (crip rune) runes)
 |=  [name=cord snippet=tape]
 ^-  completion-item:lsp-sur
