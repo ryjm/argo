@@ -8,8 +8,9 @@
     default-agent, verb
 !:
 =/  debug  |
+=/  do-builds  |
 |%
-+$  card  card:agent:gall
++$  card  $+(card card:agent:gall)
 +$  lsp-req
   $:  uri=@t
       $%  [%sync changes=(list change)]
@@ -32,10 +33,10 @@
 ::
 +$  position
   [row=@ud col=@ud]
-::
+ ::  +state: state of the language server
 +$  state-one
   $:  %1
-      bufs=(map uri=@t buf=wall)
+      bufs=(map uri=@t buf=wall)                        ::  text buffers
       builds=(map uri=@t =vase)
       ford-diagnostics=(map uri=@t (list diagnostic:lsp-sur))
       preludes=(map uri=@t type)
@@ -250,8 +251,17 @@
   =/  =path  (uri-to-path:build uri)
   =/  =desk  (find-desk uri)
   ~?  >  debug  handle-did-save+desk
+  =/  bek  byk.bow(r da+now.bow)
+  =+  .^(=open:clay %cs /(scot %p our.bow)/[desk]/(scot %da now.bow)/open/foo)
+  =/  =type  -:(open path)
+  ~&  >>  "found {<path>} at {<desk>}"
+  =/  file=wall
+    %-  to-wall  (trip .^(@t %cx (en-beam bek(q desk) path)))
+  =.  preludes
+    (~(put by preludes) uri type)
+ ::
   :_  state
-  %+  weld  [(build-file & uri path `desk) ~]
+  %+  weld  (build-file & uri path `desk)
   =-  %+  weld  -  (give-rpc-notification (get-diagnostics uri))
   =-  (hite desk path -)
    %-  crip  (zing (join "\0a" `wall`(~(got by bufs) uri)))
@@ -274,7 +284,7 @@
   ~?  >  debug  handle-did-build+uri
   =/  loc=^path  (uri-to-path:build uri)
   =;  [res=(quip card _state) dek=desk]
-    [(snoc -.res (build-file | uri loc `dek)) +.res]
+    [(weld -.res (build-file | uri loc `dek)) +.res]
   ?~  p.gift
     [[~ state] %base]
   =.  builds
@@ -294,6 +304,7 @@
   ~&  >>  "built {<path>} at {<dek>}"
   =/  file=wall
     %-  to-wall  (trip .^(@t %cx (en-beam bek(q dek) loc)))
+   =.  bufs  (~(put by bufs) uri file)
   =.  preludes
     (~(put by preludes) uri type)
   :_  dek
@@ -311,13 +322,14 @@
 ::
 ++  build-file
   |=  [eager=? uri=@t =path desk=(unit desk)]
-  ^-  card
+  ^-  (list card)
+  ?.  do-builds  ~
   =/  =rave:clay
     ?:  eager
       [%sing %a da+now.bow path]
     [%next %a da+now.bow path]
   =/  des=^desk  ?^  desk  u.desk  %base
-  [%pass /ford/[uri] %arvo %c %warp our.bow des `rave]
+  ~[[%pass /ford/[uri] %arvo %c %warp our.bow des `rave]]
 ::
 ::  for finding a desk when saving a file
 ::  ignores files in %base
@@ -366,7 +378,7 @@
   :_  state
   %+  weld
     (give-rpc-notification (get-diagnostics uri.item))
-  [(build-file & uri.item path `dek) ~]
+  (build-file & uri.item path `dek)
 ::
 ++  get-parser-diagnostics
   |=  uri=@t
@@ -432,7 +444,7 @@
   =/  docs=(unit @t)
     %+  biff  (find-type-mule:auto sut hon)
     |=  [id=term typ=type]
-    ~?  >  debug  "looking for type: {<id>}"
+    ~?  >  &  "looking for type: {<id>}"
     =+  to-display=(mule |.((find-item-in-type:dprint ~[id] typ)))
     :-  ~
     %-  crip
@@ -448,8 +460,8 @@
   :-  ~
   =;  result
     ~?  >  debug  "output: {<result>}"  result
-  ::  =-  ~?  >  debug  "exact: {<(crip -)>}"  (crip -)
   ?^  docs  u.docs
+  ~&  >>  "no docs found for {<uri.hov>}"
   %-  crip
   =;  exact=tape
     "```hoon\0a {exact} \0a```"
@@ -462,7 +474,6 @@
   =/  [=type rep=(unit tape)]  detail.u.p.types
   ~?  >  debug  "detail: {<[type rep]>}"
   ?^  rep  ~[u.rep]
-  ?:  =(type -:!>(**))  ~[(trip (need missing-type))]
   (~(win re ~(duck easy-print type)) 0 140)
 ::
 ++  sync-buf
