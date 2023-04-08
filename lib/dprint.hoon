@@ -79,15 +79,14 @@
 ::  +hunt: door used for refining the type while searching for doccords
 ::
 ++  hunt
-  =|  aliases=(map term (unit item))
-  =|  alias=(unit term)
+   =|  alias=$~(| ?)
   |_  [topics=(lest term) sut=type]
   +*  this  .
   ::
   +|  %find
   ::
   ++  find-item
-    ~?  >>  debug  [%find-item -.sut]
+    ~?  >>  debug  %find-item
     ^-  (unit item)
     ?-    sut
         %noun      ~
@@ -127,72 +126,34 @@
     recurse-core
   ::
   ++  find-face
-    ~?  >>  debug  [%find-face sut]
+    ~?  >>  debug  %find-face
     ^-  (unit item)
     ?>  ?=([%face *] sut)
     ?^   p.sut
-      ~?  >>  debug  [%find-face-alias-ket sut]
-      ~?  >>  debug  [%find-face-alias-current-ket alias]
-      ~?  >>  debug  [%find-face-aliases-ket aliases]
-      ~?  >>  debug  [%find-face-topics-ket topics]
-      =.  aliases  aliases:populate-aliases
-      ~?  >>  debug  [%find-face-item itm]
-      ~?  >>  debug  [%find-face-aliases aliases]
-      ~
-    ~?  >>  debug  [%find-face-alias-current alias]
-    ~?  >>  debug  [%find-face-aliases aliases]
-    ~?  >>  debug  [%find-face-alias p.sut]
+      find-aliases
     ?.  =(i.topics p.sut)
-       ?~  alias  ~
-       ?.  =(i.topics u.alias)  ~
-       find-item:this(sut q.sut)
+      ~
     ?~  t.topics
       return-face
     find-item:this(sut q.sut, topics t.topics)
-  ++  populate-aliases
-    ~?  >>  debug  [%find-aliases aliases]
-    ^+  this  
-    ?>  ?=([%face *] sut)
-    ?>  ?=(^ p.sut)
-    =/  tunes=(list (pair term type))
-      %+  turn  ~(tap by p.p.sut)
-      |=  [name=term hun=(unit hoon)]
-      =/  dur=type  (~(play ut sut) (need hun))
-      [name dur]
-    ~?  >>  debug  find-aliases-tunes+(turn tunes |=(a=(pair term type) p.a))
-    |-
-    ?~  tunes  this
-    =.  alias  `p.i.tunes
-    =.  aliases
-      %+  ~(put by aliases)  p.i.tunes
-      =;  hnt  return-item:this(p.sut p.i.tunes, sut hnt)
-      [%hint [q.i.tunes [%know p.i.tunes]] q.i.tunes]
-    ~&  >>  find-tunes+p.i.tunes
-    ~?  >>  debug  find-aliases-saved+aliases
-    $(tunes t.tunes, aliases aliases)
   ::
   ++  find-aliases
-    ~?  >>  debug  [%find-aliases aliases]
+    ~?  >>  debug  %find-aliases
     ^-  (unit item)
     ?>  ?=([%face *] sut)
     ?>  ?=(^ p.sut)
-    =/  tunes=(list (pair term type))
+    =/  aliases=(list (pair term type))
       %+  turn  ~(tap by p.p.sut)
       |=  [name=term hun=(unit hoon)]
       =/  ale=vase  (~(mint ut sut) %noun (need hun))
-      =/  dur=type  -:ale
+      =/  dur=type  -:(slop ale !>(..zuse))
       [name dur]
-    ~?  >>  debug  find-aliases-tunes+(turn tunes |=(a=(pair term type) p.a))
     |-
-    ?~  tunes  ~
-    =.  alias  `p.i.tunes
-    =.  aliases
-      %+  ~(put by aliases)  p.i.tunes
-      =;  hnt  return-item:this(p.sut p.i.tunes, sut hnt)
-      [%hint [q.i.tunes [%know p.i.tunes]] q.i.tunes]
-    ~&  >>  find-tunes+p.i.tunes
-    ~?  >>  debug  find-aliases-saved+aliases
-    $(tunes t.tunes, aliases aliases)
+    ?~  aliases  ~
+    ?~  t.aliases
+      =.  alias  &
+      find-item:this(sut q.i.aliases)
+    $(aliases t.aliases)
 
   ++  find-fork
     ~?  >>  debug  %find-fork
@@ -211,11 +172,8 @@
     ^-  (unit item)
     |^
     ?>  ?=([%hint *] sut)
-    =;  help
-      ?+    q.p.sut  find-item:this(sut q.sut)
-          [%know @]  return-hint:this(sut p.p.sut)
-          [%help *]  help
-      ==
+    ?.  ?=([%help *] q.p.sut)
+      find-item:this(sut q.sut)
     ?+    q.sut  ~
         [%cell *]  find-cell:this(sut q.sut)
         [%core *]  find-hint-core
@@ -241,7 +199,6 @@
     ++  find-hint-face
       ~?  >>  debug  %find-hint-face
       ^-  (unit item)
-
       ?>  &(?=([%hint *] sut) ?=([%help *] q.p.sut) ?=([%face *] q.sut))
       ?:  check-face:this(sut q.sut)
         ?~  t.topics
@@ -286,7 +243,6 @@
     ?>  ?=([%face *] sut)
     ?.  ?=(term p.sut)
       ::TODO: handle $tune case
-      ~&  >>  check-face+[%tune p.sut]
       %.n
     =(p.sut i.topics)
   ++  check-search
@@ -319,22 +275,10 @@
     ^-  (unit item)
     ?>  ?=([%face *] sut)
     ?<  ?=(^ p.sut)
-    ::  if we found an alias we know what it was compiled against
-    ::  TODO: ensure we can reliably find this before removing the bunt
+    ?~  alias
+      `[%face (trip i.topics) *what q.sut `*item]
     =*  compiled-against  return-item:this(sut q.sut)
     `[%face (trip p.sut) *what q.sut compiled-against]
-  ::
-  ++  return-alias
-    ~?  >>>  debug  %return-alias
-    ^-  (unit item)
-    ?>  ?=([%face *] sut)
-    ?:  ?=(^ p.sut)  !!
-    :: =/  types  ~(val by aliases)
-    :: =/  items  (turn types |=(a=type return-item:this(sut a)))
-    ~&  aliases
-    =/  children  (~(gut by aliases) p.sut `*item)
-    `[%face (trip p.sut) *what q.sut children]
-
   ::
   ++  return-fork
     ~?  >>>  debug  %return-fork
@@ -348,23 +292,14 @@
     ~?  >>>  debug  %return-hint
     ^-  (unit item)
     ?>  ?=([%hint *] sut)
-    
     =*  res  return-item:this(sut q.sut)
-    ?+    q.p.sut  ~&  >>  %no-help  ~
-        [%know @]  `[%view [%header ~ (item-as-overview res)]~]
-      ::   [%made *]
-      :: ~&  made-type+p.p.sut
-      :: ~&  made-note+q.p.sut
-      :: ~&  made-other-type+q.sut
-      :: ~&  >>  %weird-made
-      :: ~
-        [%help *]
-      ?:  ?=([%core *] q.sut)
-        return-hint-core
-      ?:  ?=([%face *] q.sut)
-        return-hint-face
+    ?.  ?=([%help *] q.p.sut)
+      ~
+    ?:  ?=([%core *] q.sut)
+      return-hint-core
+    ?:  ?=([%face *] q.sut)
+      return-hint-face
     `[%view [%header `crib.p.q.p.sut (item-as-overview res)]~]
-    ==
   ::
   ++  return-arm
     ~?  >>>  debug  %return-arm
@@ -393,7 +328,7 @@
     `[%core (trip i.topics) dox at compiled-against]
   ::
   ++  return-item
-    ~?  >>>  debug  [%return-item -.sut]
+    ~?  >>>  debug  %return-item
     ^-  (unit item)
     ?-    sut
         %noun      ~
@@ -401,13 +336,9 @@
         [%atom *]  ~
         [%cell *]  return-cell
         [%core *]  return-core
-        [%face *]  
-      ~?  >>>  debug  [%return-item-face p.sut]
-      return-face
+        [%face *]  return-face
         [%fork *]  return-fork
-        [%hint *]
-      ~?  >>>  debug  [%return-item-hint q.p.sut]
-      return-hint
+        [%hint *]  return-hint
         [%hold *]  return-item:this(sut (~(play ut p.sut) q.sut))
     ==
   ::
@@ -670,7 +601,7 @@
   ::
     [%txt ""]~
   ::
-    (print-signature ~(duck us sut.item))
+    (print-signature ~(duck easy-print sut.item))
   ::
     [%txt ""]~
   ::
@@ -719,7 +650,7 @@
   ?.  (gte (lent tan) 3)
     (turn tan |=(a=tape [%txt a]))
   %+  weld
-    (turn (scag 100 tan) |=(a=tape [%txt a]))
+    (turn tan |=(a=tape [%txt a]))
   (styled [[`%br ~ `%g] '   ...']~)
 ::
 ::  +print-arm: renders documentation for a single arm in a core
@@ -732,7 +663,7 @@
     (print-header (weld "+" name.item) adoc.item)
     [%txt ""]~
   ::
-    (print-signature ~(duck us (~(play ut sut.item) gen.item)))
+    (print-signature ~(duck easy-print (~(play ut sut.item) gen.item)))
   ::
     [%txt ""]~
   ::
@@ -759,9 +690,8 @@
   ;:  weld
     (print-header (weld "." name.item) docs.item)
     [%txt ""]~
-        ~?  >>  debug  [%print-signature name.item]
-    (print-signature ~(duck us sut.item))
- ::
+    (print-signature ~(duck easy-print sut.item))
+  ::
     ?~  children.item
       ~
     (print-item u.children.item)
