@@ -585,5 +585,5 @@
       =/  =mark  (rear path)
       =/  =type  [%atom %t ~]
       =-  (cite desk path -)
-      [mark [type ?:(=(%hoon mark) txt (need (de-json:html txt)))]]
+      [mark [type ?:(=(%hoon mark) txt (need (de:json:html txt)))]]
 --
